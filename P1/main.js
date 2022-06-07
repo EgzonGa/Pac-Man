@@ -260,3 +260,84 @@ function move_ghost(ghost, target, path_algorithm){
         ghost.scatter_node = random_new_scatter_node[[Math.floor(Math.random()*random_new_scatter_node.length)]]
     }
 }
+
+function orient_ghost(ghost_list){
+    for (let i = 0; i < 4; i++){
+        if (Math.abs(player.x - ghost_list[i].x) <= 6 && Math.abs(player.y - ghost_list[i].y) <= 6){
+            if (!scatter_mode && !ghost_list[i].eaten){
+                waka.pause()
+                waka.currentTime = 0
+                death.play()
+                if (lives > 0){
+                    start_timer = performance.now() - 2000
+                    for (let ghost of ghost_list){
+                        ghost.x = ghost.original_location_x
+                        ghost.y = ghost.original_location_y
+                        ghost.eaten = false
+                    }
+                    player.x = player.original_location_x
+                    player.y = player.original_location_y
+                    player.degrees = 270
+                    keyBeingPressed = "left"
+                    hasStarted = false
+                    lives -= 1
+                }
+                else {
+                    dead = true
+                }
+            }
+            else if (!ghost_list[i].eaten) {
+                for (let this_ghost_list of ghost_type_list) {
+                    this_ghost_list[i].eaten = true
+                }
+                eat_ghost.play()
+                switch_costume(eaten_ghost_list, ghost_list)
+            }
+        }
+        let ghost = ghost_list[i]
+        if (ghost_list[i].eaten){
+            ghost = eaten_ghost_list[i]
+        }
+        if (performance.now() - ghost.cooldown >= 0){
+            if (ghost.previous_node == null || ghost.previous_node.y - ghost.y > 0){
+                ghost.degrees = 0
+            }
+            else if (ghost.previous_node.x - ghost.x < 0){
+                ghost.degrees = 90
+            }
+            else if (ghost.previous_node.x - ghost.x > 0){
+                ghost.degrees = 270
+            }
+            else if (ghost.previous_node.y - ghost.y < 0){
+                ghost.degrees = 180
+            }
+            if (!scatter_mode && !ghost.eaten){
+                move_ghost(ghost, player, i)
+            }
+            else {
+                if (!ghost.eaten) {
+                    move_ghost(ghost, ghost.scatter_node, i)
+                }
+                else {
+                    eval("var original_node = node" + eaten_ghost_list[i].original_location_x + eaten_ghost_list[i].original_location_y)
+                    move_ghost(eaten_ghost_list[i], original_node, i)
+                }
+                
+            }
+        }
+        ghost.draw()
+    }
+}
+
+function switch_costume(first_ghost_list, second_ghost_list){
+    eval("var player_node = node" + player.x + player.y)
+    for (let i = 0; i < 4; i++){
+        first_ghost_list[i].x = second_ghost_list[i].x
+        first_ghost_list[i].y = second_ghost_list[i].y
+        first_ghost_list[i].previous_node = player_node
+        first_ghost_list[i].degrees = second_ghost_list[i].degrees
+        first_ghost_list[i].scatter_node = second_ghost_list[i].scatter_node
+        first_ghost_list[i].cooldown = second_ghost_list[i].cooldown
+        first_ghost_list[i].eaten = second_ghost_list[i].eaten
+    }
+}
