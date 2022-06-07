@@ -49,3 +49,75 @@ function keyDownHandler(e) {
         }
     }
 }
+function player_move(){
+    try {
+        if (keyBeingPressed == "right"){
+            eval("var potential_node = node" + (player.x + speed) + player.y)
+            eval("var can_move = nodes.has(node" + (player.x + speed) + player.y + ")")
+            if (can_move && !forbidden_nodes.has(potential_node)){
+                player.x += speed
+                player.degrees = 90
+            }
+        }
+        else if (keyBeingPressed == "left"){
+            eval("var potential_node = node" + (player.x - speed) + player.y)
+            eval("var can_move = nodes.has(node" + (player.x - speed) + player.y + ")")
+            if (can_move && !forbidden_nodes.has(potential_node)){
+                player.x -= speed
+                player.degrees = 270
+            }
+        }
+        else if (keyBeingPressed == "down"){
+            eval("var potential_node = node" + player.x + (player.y + speed))
+            eval("var can_move = nodes.has(node" + player.x + (player.y + speed) + ")")
+            if (can_move && !forbidden_nodes.has(potential_node)){
+                player.y += speed
+                player.degrees = 180
+            } 
+        }
+        else if (keyBeingPressed == "up"){
+            eval("var potential_node = node" + player.x + (player.y - speed))
+            eval("var can_move = nodes.has(node" + player.x + (player.y - speed) + ")")
+            if (can_move && !forbidden_nodes.has(potential_node)){
+                player.y -= speed
+                player.degrees = 0
+            }
+        }
+        if (can_move && !forbidden_nodes.has(potential_node)){
+            hasStarted = true
+        }
+        if (forbidden_nodes.has(potential_node)) {
+            throw '';
+        }
+    }
+    catch (error) {
+        if (player.degrees == 90){
+            eval("var can_move = nodes.has(node" + (player.x + speed) + player.y + ")")
+            if (can_move){
+                player.x += speed
+                player.degrees = 90
+            }
+        }
+        else if (player.degrees == 270){
+            eval("var can_move = nodes.has(node" + (player.x - speed) + player.y + ")")
+            if (can_move){
+                player.x -= speed
+                player.degrees = 270
+            }
+        }
+        else if (player.degrees == 180){
+            eval("var can_move = nodes.has(node" + player.x + (player.y + speed) + ")")
+            if (can_move){
+                player.y += speed
+                player.degrees = 180
+            } 
+        }
+        else if (player.degrees == 0){
+            eval("var can_move = nodes.has(node" + player.x + (player.y - speed) + ")")
+            if (can_move){
+                player.y -= speed
+                player.degrees = 0
+            }
+        }
+    }
+}
