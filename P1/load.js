@@ -312,3 +312,94 @@ walls.push(new wall(starting_position + 565 - thickness, starting_y_position + 1
 
 
 
+var coins = new Set(nodes)
+var large_nodes = new Set([node300250, node850500, node620370, node1200300])
+var scatter_node_list = [node1200100, node1200650, node300650, node300100]
+
+var forbidden_nodes = new Set()
+for (let i = 0; i < 4; i++){
+    let x = starting_position + 430 + i*20
+    for (let j = 1; j < 151; j++) {
+        let y = starting_y_position + 100 + j
+        eval('var node' + x + y + '= new node(' + x + "," + y + ')')
+        eval('forbidden_nodes.add(node' + x + y + ')')
+        eval('nodes.add(node' + x + y + ')')
+    }
+}
+
+for (let node of nodes){
+    try {
+        eval('var test_node1 = node' + (node.x + 5) + node.y)
+        if (nodes.has(test_node1)){
+            node.connecting_nodes.push(test_node1)
+        }
+    }
+    catch (e){}
+    try{
+        eval('var test_node2 = node' + (node.x - 5) + node.y)
+        if (nodes.has(test_node2)){
+            node.connecting_nodes.push(test_node2)
+        }
+    }
+    catch (e){}
+    try {
+        eval('var test_node3 = node' + node.x + (node.y + 5))
+        if (nodes.has(test_node3)){
+            node.connecting_nodes.push(test_node3)
+        }
+    }
+    catch (e){}
+    try{
+        eval('var test_node4 = node' + node.x + (node.y - 5))
+        if (nodes.has(test_node4)){
+            node.connecting_nodes.push(test_node4)
+        }
+    }
+    catch (e){}
+}
+
+
+var red_ghost = new GIF(starting_position + 490, starting_y_position + 200, [["Images/1.png", "Images/2.png"], ["Images/3.png", "Images/4.png"], ["Images/5.png", "Images/6.png"], ["Images/7.png", "Images/8.png"]], 4)
+red_ghost.previous_node = null
+ghost_list.push(red_ghost)
+
+var player = new GIF(starting_position, starting_y_position, [["Images/PlayerUP - 1.png", "Images/PlayerUP - 2.png"], ["Images/PlayerRIGHT - 1.png", "Images/PlayerRIGHT - 2.png"], ["Images/PlayerLEFT - 1.png", "Images/PlayerLEFT - 2.png"], ["Images/PlayerDOWN - 1.png", "Images/PlayerDOWN - 2.png"]], 4)
+var pac_man_circle = new GameObject(player.x, player.y, "Images/Circle.png")
+player.lives = 3
+
+var cyan_ghost = new GIF(starting_position + 490, starting_y_position + 250, [["Images/9.png", "Images/10.png"], ["Images/11.png", "Images/12.png"], ["Images/13.png", "Images/14.png"], ["Images/15.png", "Images/16.png"]], 4)
+cyan_ghost.previous_node = null
+ghost_list.push(cyan_ghost)
+
+var orange_ghost = new GIF(starting_position + 430, starting_y_position + 200, [["Images/23.png", "Images/24.png"], ["Images/19.png", "Images/20.png"], ["Images/31.png", "Images/32.png"], ["Images/21.png", "Images/22.png"]], 4)
+orange_ghost.previous_node = null
+ghost_list.push(orange_ghost)
+
+var pink_ghost = new GIF(starting_position + 430, starting_y_position + 250, [["Images/25.png", "Images/26.png"], ["Images/29.png", "Images/30.png"], ["Images/33.png", "Images/34.png"], ["Images/27.png", "Images/28.png"]], 4)
+pink_ghost.previous_node = null
+ghost_list.push(pink_ghost)
+
+var main_scatter_ghost_list = []
+var second_scatter_ghost_list = []
+var eaten_ghost_list = []
+
+for (let i = 0; i < 4; i++){
+    let main_ghost = new GIF(0, 0, ["Images/35.png", "Images/36.png"], 1)
+    main_ghost.eaten = false
+    main_scatter_ghost_list.push(main_ghost)
+
+    let second_ghost = new GIF(0, 0, ["Images/35.png", "Images/36.png", "Images/37.png", "Images/38.png"], 1)
+    second_ghost.eaten = false
+    second_scatter_ghost_list.push(second_ghost)
+
+    ghost_list[i].scatter_node = scatter_node_list[i]
+    ghost_list[i].eaten = false
+
+    let eaten_ghost = new GIF(ghost_list[i].x, ghost_list[i].y, [["Images/up_eye.png", "Images/up_eye.png"], ["Images/right_eye.png", "Images/right_eye.png"], ["Images/left_eye.png", "Images/left_eye.png"], ["Images/down_eye.png", "Images/down_eye.png"]], 4)
+    eaten_ghost.eaten = true
+    eaten_ghost_list.push(eaten_ghost)
+}
+
+eval('var cherry_node = node' + (((Math.floor(Math.random() * ((starting_position + 820)/5 - (starting_position + 100)/5 + 1)) + (starting_position + 100)/5)) * 5) + (starting_y_position + 550))
+var cherry = new GameObject(cherry_node.x, cherry_node.y, "Images/cherry.png")
+
