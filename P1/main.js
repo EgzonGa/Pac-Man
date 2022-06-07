@@ -341,3 +341,158 @@ function switch_costume(first_ghost_list, second_ghost_list){
         first_ghost_list[i].eaten = second_ghost_list[i].eaten
     }
 }
+function draw(){
+    if (!running){
+        ctx.fillStyle = "#eee"
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        if (first_loop){
+            start_timer = performance.now()
+            first_loop = false
+            start_audio.play()
+        }
+        ctx.textAlign = "center"
+        ctx.font = "60px Georgia";
+        if (performance.now() - start_timer <= Math.floor((start_audio.duration * 1000)) - 3000){
+            ctx.fillText("Ready!", canvas.width/2, canvas.height/2)
+        }
+        else if (performance.now() - start_timer <= Math.floor((start_audio.duration * 1000)) - 2000){
+            ctx.fillText("3", canvas.width/2, canvas.height/2)
+        }
+        else if (performance.now() - start_timer <= Math.floor((start_audio.duration * 1000)) - 1000){
+            ctx.fillText("2", canvas.width/2, canvas.height/2)
+        }
+        else if (performance.now() - start_timer <= Math.floor((start_audio.duration * 1000))){
+            ctx.fillText("1", canvas.width/2, canvas.height/2)
+            for (let i = 0; i < 4; i++){
+                ghost_list[i].cooldown = performance.now() + i * 3000
+            }
+        }
+        else if (!dead && !won) {
+            ctx.beginPath()
+            try {
+                player_move()
+                waka.play()
+                waka.loop = true
+            }
+            catch (error){}
+            if (performance.now() - cooldown > 250){
+                if (player.degrees == 90){
+                    keyBeingPressed = "right"
+                }
+                else if (player.degrees == 270){
+                    keyBeingPressed = "left"
+                }
+                else if (player.degrees == 180){
+                    keyBeingPressed = "down"
+                }
+                else if (player.degrees == 0){
+                    keyBeingPressed = "up"
+                }
+            }
+
+            for (let coin of coins){
+                if (large_nodes.has(coin)){
+                    ctx.fillStyle = "#FFFF00";
+                    ctx.fillRect(coin.x - 5, coin.y - 5, 10, 10)
+                }
+                else {
+                    ctx.fillStyle = "#eee"
+                    ctx.fillRect(coin.x, coin.y, 1, 1)
+                }
+                
+            }
+
+            if (coins.size == 0){
+                won = true
+                waka.pause()
+                waka.currentTime = 0
+                victory.play()
+            }
+
+            eval("var player_node = node" + player.x + player.y)
+
+            if (player_node == cherry_node && !fruit_eaten) {
+                lives += 1
+                eat_fruit.play()
+                fruit_eaten = true
+            }
+            else if (!fruit_eaten) {
+                cherry.draw()
+            }
+            
+            if (coins.has(player_node)){
+                coins.delete(player_node)
+                if (large_nodes.has(player_node)){
+                    large_nodes.delete(player_node)
+                    if (scatter_mode){
+                        if (scatter_cooldown - new Date() < 1500){
+                            switch_costume(main_scatter_ghost_list, second_scatter_ghost_list)
+                        }
+                    }
+                    else {
+                        scatter_mode = true
+                        switch_costume(main_scatter_ghost_list, ghost_list)
+                    }
+                    scatter_cooldown = new Date()
+                }
+            }
+
+            ctx.fillStyle = "#0000FF"
+            for (let wall of walls){
+                if (wall != ghost_wall){
+                    wall.draw()
+                }
+                else {
+                    ctx.fillStyle = "#FF0000"
+                    wall.draw()
+                    ctx.fillStyle = "#0000FF"
+                }
+            }
+
+            if (scatter_mode){
+                if (new Date() - scatter_cooldown >= 4000) {
+                    scatter_mode = false
+                    switch_costume(ghost_list, second_scatter_ghost_list)
+                }
+                else {
+                    ctx.textAlign = "center"
+                    ctx.font = "20px Georgia";
+                    let time_left = 4 - Math.round((new Date() - scatter_cooldown)/1000)
+                    ctx.fillText("Scatter Mode Ends: " + time_left, canvas.width/2, starting_y_position - 50)
+                    if (new Date() - scatter_cooldown < 1500){
+                        orient_ghost(main_scatter_ghost_list)
+                        switch_costume(second_scatter_ghost_list, main_scatter_ghost_list)
+                    }
+                    else {
+                        orient_ghost(second_scatter_ghost_list)
+                    }
+                }
+            }
+            else {
+                orient_ghost(ghost_list)
+            }
+            
+            if (!hasStarted){
+                pac_man_circle.draw()
+            }
+            else {
+                player.draw()
+            }
+            ctx.fill()
+            ctx.closePath()
+        }
+        else if (!dead && won){
+            ctx.beginPath()
+            ctx.fillText("Victory!", canvas.width/2, canvas.height/2)
+            ctx.closePath()
+        }
+        else if (dead && !won) {
+            ctx.beginPath()
+            ctx.fillText("You died", canvas.width/2, canvas.height/2)
+            ctx.closePath()
+        }
+    }
+}
+
+var fps = 60
+setInterval(draw, 1000/fps)
