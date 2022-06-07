@@ -191,3 +191,72 @@ function pathfind_bfs(node, target, list, already_visited, modified_path){
 
 node_list = []
 already_visited = new Set()
+function move_ghost(ghost, target, path_algorithm){
+    if (ghost.x != target.x || ghost.y != target.y){
+        eval("var target_node = node" + target.x + target.y)
+        eval("var ghost_node = node" + ghost.x + ghost.y)
+        let shortest_path = []
+        for (let node of ghost_node.connecting_nodes){ 
+            if (node == target_node){
+                ghost.x = target.x
+                ghost.y = target.y
+                break
+            }
+            else if (node != ghost.previous_node){
+                node_list.splice(0, node_list.length)
+                already_visited.clear()
+                if (ghost.previous_node != null){
+                    already_visited.add(ghost.previous_node)
+                }
+                already_visited.add(ghost_node) //can't double back to go to ghost's current position
+                let path = []
+                if (path_algorithm == 0){
+                    path = pathfind_dfs(node, target_node, node_list, already_visited, false)
+                }
+                else if (path_algorithm == 1){
+                    path = pathfind_dfs(node, target_node, node_list, already_visited, true)
+                }
+                else if (path_algorithm == 2){
+                    path = pathfind_bfs(node, target_node, node_list, already_visited, false)
+                }
+                else {
+                    path = pathfind_bfs(node, target_node, node_list, already_visited, true)
+                }
+                if (shortest_path.length == 0 || (shortest_path.length > path.length && path.length != 0)){
+                    shortest_path = path
+                }
+            }
+        }
+        
+        for (let node of shortest_path){
+            if (node != ghost.previous_node && node != ghost_node){
+                ghost.x = node.x
+                ghost.y = node.y
+                break
+            }
+        }
+        if (ghost.previous_node != ghost_node){
+            ghost.previous_node = ghost_node 
+        }
+            
+    }
+    else if (ghost.x == ghost.original_location_x && ghost.y == ghost.original_location_y && eaten_ghost_list.includes(ghost)) {
+        eval("var player_node = node" + player.x + player.y)
+        let i = eaten_ghost_list.indexOf(ghost)
+        for (let first_ghost_list of ghost_type_list) {
+            first_ghost_list[i].x = ghost.x
+            first_ghost_list[i].y = ghost.y
+            first_ghost_list[i].previous_node = player_node
+            first_ghost_list[i].degrees = ghost.degrees
+            first_ghost_list[i].scatter_node = ghost.scatter_node
+            first_ghost_list[i].cooldown = performance.now() + 4000
+            first_ghost_list[i].eaten = false
+        }
+        
+    }
+    else {
+        let random_new_scatter_node = [...scatter_node_list]
+        random_new_scatter_node.splice(scatter_node_list.indexOf(ghost.scatter_node), 1)
+        ghost.scatter_node = random_new_scatter_node[[Math.floor(Math.random()*random_new_scatter_node.length)]]
+    }
+}
