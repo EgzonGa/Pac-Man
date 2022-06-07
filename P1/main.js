@@ -121,3 +121,73 @@ function player_move(){
         }
     }
 }
+function pathfind_dfs(node, target, list, already_visited, modified_path){
+    list.push(node)
+    already_visited.add(node)
+    let current_node = node
+    while (current_node != target){
+        let amt_of_nodes = 0
+        let connecting_nodes = []
+        if (modified_path) {
+            connecting_nodes = current_node.connecting_nodes
+        }
+        else {
+            connecting_nodes = current_node.connecting_nodes.reverse()
+        }
+        for (let next_node of connecting_nodes){
+            if (next_node == target){
+                list.push(next_node)
+                return [...list]
+            }
+            else if (!already_visited.has(next_node)){
+                current_node = next_node
+                list.push(next_node)
+                already_visited.add(next_node)
+                amt_of_nodes += 1
+                break
+            }
+        }
+        if (amt_of_nodes == 0 && current_node == node){
+            return []
+        }
+        if (amt_of_nodes == 0){
+            if (current_node != node){
+                list.splice(list.indexOf(current_node), 1)
+                current_node = list[list.length - 1]
+            }
+        }
+    }
+}
+
+function pathfind_bfs(node, target, list, already_visited, modified_path){ 
+    let current_node = node
+    list.push([node])
+    while (list.length > 0){
+        let path = list.shift()
+        current_node = path[path.length - 1]
+        if (!already_visited.has(current_node)){
+            if (modified_path) {
+                connecting_nodes = current_node.connecting_nodes
+            }
+            else {
+                connecting_nodes = current_node.connecting_nodes.reverse()
+            }
+            for (let next_node of connecting_nodes){
+                if (!already_visited.has(next_node)){
+                    let new_path = [...path]
+                    new_path.push(next_node)
+                    if (next_node == target){
+                        return new_path
+                    }
+                    list.push(new_path)
+                }
+            }
+            already_visited.add(current_node)
+        }
+    }
+    return []
+}
+
+
+node_list = []
+already_visited = new Set()
