@@ -225,4 +225,90 @@ for (let i = starting_position; i <= starting_position + 900; i = i + 5){ //map 
         eval('nodes.add(' + "node" + i + (starting_y_position + 550) + ')')
     }
 }
+var width = 10
+var displacement = 22.5
+var thickness = displacement + width
+walls.push(new wall(starting_position - thickness, starting_y_position - thickness, 900 + thickness * 2, width)) //outer walls
+walls.push(new wall(starting_position + 900 + displacement, starting_y_position - thickness, width, 550 + thickness * 2))
+walls.push(new wall(starting_position - displacement, starting_y_position + 550 + displacement, 900 + displacement * 2, width))
+
+walls.push(new wall(starting_position + displacement, starting_y_position + displacement, width, 150 - displacement * 2)) //upper left
+walls.push(new wall(starting_position - thickness, starting_y_position - thickness, width, 155 + displacement * 2 + width))
+walls.push(new wall(starting_position - thickness, starting_y_position + 155 + displacement, 200 + width, width))
+walls.push(new wall(starting_position + displacement, starting_y_position + 155 - thickness, 200 - displacement * 2, width))
+walls.push(new wall(starting_position + displacement, starting_y_position + displacement, 200 - displacement * 2, width))
+walls.push(new wall(starting_position + 200 - thickness, starting_y_position + displacement, width, 150 - displacement * 2))
+
+walls.push(new wall(starting_position - thickness, starting_y_position + 400 - displacement, width, 150 + displacement * 2 + width)) //bottom left
+walls.push(new wall(starting_position + 250 - thickness, starting_y_position + 400 + displacement, width, 150 - displacement * 2))
+walls.push(new wall(starting_position - thickness, starting_y_position + 400 - thickness, 200 + width, width))
+walls.push(new wall(starting_position + displacement, starting_y_position + 400 + displacement, width, 150 - displacement * 2))
+walls.push(new wall(starting_position + displacement, starting_y_position + 400 + displacement, 250 - displacement * 2, width))
+walls.push(new wall(starting_position + displacement, starting_y_position + 550 - thickness, 250 - displacement * 2, width))
+
+walls.push(new wall(starting_position + 200 + displacement, starting_y_position + displacement, width, 300 + displacement * 2 + width)) //middle left
+walls.push(new wall(starting_position + 200 - thickness, starting_y_position + 280 + displacement, width, 130 - thickness * 2))
+walls.push(new wall(starting_position + 200 - thickness, starting_y_position + 150 + thickness, width, 120 - displacement * 2))
+walls.push(new wall(starting_position - thickness, starting_y_position + 280 - thickness, 200 + width, width))
+walls.push(new wall(starting_position - thickness, starting_y_position + 280 + displacement, 200 + width, width))
+walls.push(new wall(starting_position - thickness, starting_y_position + 280 - displacement, width, thickness + displacement))
+
+walls.push(new wall(starting_position + 200 + thickness, starting_y_position + displacement, 175 - thickness * 2, width)) //middle
+walls.push(new wall(starting_position + 200 + thickness, starting_y_position + 400 - thickness, 175 - thickness * 2, width))
+walls.push(new wall(starting_position + 375 - thickness, starting_y_position + displacement, width, 180 - displacement * 2))
+walls.push(new wall(starting_position + 375 - thickness, starting_y_position + 180 + displacement, width, 220 - displacement * 2))
+walls.push(new wall(starting_position + 285 - displacement, starting_y_position + 180 - thickness, 90, width))
+walls.push(new wall(starting_position + 285 - thickness, starting_y_position + 180 - thickness, width, 145))
+walls.push(new wall(starting_position + 285 - thickness, starting_y_position + 325 - thickness, 90, width))
+walls.push(new wall(starting_position + 285 + displacement, starting_y_position + 180 + displacement, 90 - displacement * 2, width))
+walls.push(new wall(starting_position + 285 + displacement, starting_y_position + 183 + displacement * 2 + width, 90 - displacement * 2, width))
+walls.push(new wall(starting_position + 285 + displacement, starting_y_position + 180 + displacement + width, width, displacement + 3))
+
+walls.push(new wall(starting_position + 375 + displacement, starting_y_position + displacement, 335 - thickness, width))//middle top
+walls.push(new wall(starting_position + 375 + displacement, starting_y_position + displacement, width, 100 - displacement * 2)) 
+walls.push(new wall(starting_position + 715 - displacement, starting_y_position + displacement, width, 200 - displacement * 2))
+walls.push(new wall(starting_position + 375 + displacement, starting_y_position + 100 - thickness, 190, width)) 
+walls.push(new wall(starting_position + 565 + displacement, starting_y_position + 100 - thickness, width, 100 + width))
+walls.push(new wall(starting_position + 565 + displacement, starting_y_position + 100 - thickness, width, 100 + width))
+walls.push(new wall(starting_position + 565 + displacement, starting_y_position + 200 - thickness, 100 + width, width))
+
+walls.push(new wall(starting_position + 715 + thickness, starting_y_position + displacement, width, 200 - displacement * 2)) //top right
+walls.push(new wall(starting_position + 900 - thickness, starting_y_position + displacement, width, 200 - displacement * 2))
+walls.push(new wall(starting_position + 715 + thickness, starting_y_position + displacement, 125, width))
+walls.push(new wall(starting_position + 715 + thickness, starting_y_position + 200 - thickness, 125, width))
+
+walls.push(new wall(starting_position + 715 + thickness, starting_y_position + 200 + displacement, width, 125 - displacement * 2)) //middle right
+walls.push(new wall(starting_position + 900 - thickness, starting_y_position + 200 + displacement, width, 125 - displacement * 2))
+walls.push(new wall(starting_position + 715 + thickness, starting_y_position + 200 + displacement, 125, width))
+walls.push(new wall(starting_position + 715 + thickness, starting_y_position + 325 - thickness, 125, width))
+
+walls.push(new wall(starting_position + 250 + displacement, starting_y_position + 475 + displacement, width, 15 + width))//bottom right
+walls.push(new wall(starting_position + 715 + thickness, starting_y_position + 325 + displacement, 125, width)) 
+walls.push(new wall(starting_position + 715 + thickness, starting_y_position + 325 + displacement, width, 150 + width))
+walls.push(new wall(starting_position + 900 - thickness, starting_y_position + 325 + displacement, width, 225 - displacement * 2))
+walls.push(new wall(starting_position + 250 + displacement, starting_y_position + 550 - thickness, 650 - displacement * 2, width))
+walls.push(new wall(starting_position + 250 + displacement, starting_y_position + 475 + displacement, 475 + width, width))
+
+walls.push(new wall(starting_position + 250 + displacement, starting_y_position + 400 + displacement, width, 75 - displacement * 2)) //middle bottom
+walls.push(new wall(starting_position + 250 + displacement, starting_y_position + 400 + displacement, 300 - displacement * 2, width))
+walls.push(new wall(starting_position + 550 - thickness, starting_y_position + 400 + displacement, width, 75 - displacement * 2))
+walls.push(new wall(starting_position + 250 + displacement, starting_y_position + 475 - thickness, 300 - displacement * 2, width))
+
+walls.push(new wall(starting_position + 715 - displacement, starting_y_position + 325 + displacement, width, 150 - displacement * 2)) //more middle bottom
+walls.push(new wall(starting_position + 375 + displacement, starting_y_position + 325 + displacement, 335 - thickness, width)) 
+walls.push(new wall(starting_position + 550 + displacement, starting_y_position + 475 - thickness, 175 - displacement * 2, width))
+walls.push(new wall(starting_position + 550 + displacement, starting_y_position + 400 - displacement, width, 75 - width))
+walls.push(new wall(starting_position + 375 + displacement, starting_y_position + 400 - thickness, 175 + width, width)) 
+walls.push(new wall(starting_position + 375 + displacement, starting_y_position + 325 + displacement, width, displacement)) 
+
+var ghost_wall = new wall(starting_position + 375 + thickness, starting_y_position + 100 + displacement, 180 - displacement * 2, width) //Red wall
+walls.push(ghost_wall)
+
+walls.push(new wall(starting_position + 375 + displacement, starting_y_position + 100 + displacement, width, 225 - displacement * 2)) //Ghost Cage
+walls.push(new wall(starting_position + 375 + displacement, starting_y_position + 325 - thickness, 350 - displacement * 2, width))
+walls.push(new wall(starting_position + 725 - thickness, starting_y_position + 200 + displacement, width, 125 - displacement * 2))
+walls.push(new wall(starting_position + 565 - thickness, starting_y_position + 200 + displacement, 160 + width, width))
+walls.push(new wall(starting_position + 565 - thickness, starting_y_position + 100 + displacement, width, 100))
+
+
 
