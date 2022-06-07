@@ -1,4 +1,433 @@
 
+(function () {
+  // region: initialize constants 
+  const canvas = document.getElementById('root')
+  const ctx = canvas.getContext('2d')
+  setCanvasStyle()
+  const w = canvas.width
+  const MARGIN_PACMAN = 1
+  const STEP = 5
+  const COLOR = {
+    BACKGROUND: '#000000',
+    PACMAN: '#EA1B21',
+    POWER: '#ff0000',
+    MAP: '#000099',
+    FOOD: '#ffffff',
+    CHERRY: '#990000',
+    CHERRY_BRANCH: '#009900',
+    EYE: '#ffffff',
+    GHOST_WEAK: '#A9A9A9',
+    GHOST: ['#993333', '#339933', '#333399', '#999933', '#993399', '#339999']
+  }
+  const SIZE = {
+    GRID: 19,
+    BLOCK: w / 19
+  }
+  const NUMBER = {
+    GHOST: 8,
+    CHERRY: 5,
+    ROW: SIZE.GRID * STEP,
+    POWER: 50,
+    INTERVAL: 100
+  }
+  const ELEMENT = {
+    FOOD: 'food',
+    BLOCK: 'block',
+    CHERRY: 'cherry',
+    GHOST: 'ghost'
+  }
+  const GHOST_AREA = {
+    x: 7,
+    y: 8,
+    w: 5,
+    h: 3
+  }
+  const DIRECTION = {
+    LEFT: 'left',
+    RIGHT: 'right',
+    UP: 'up',
+    DOWN: 'down'
+  }
+  // endregion
+ 
+  // region: declare variable
+  var pacman = {}
+  var map = []
+  var food = []
+  var ghosts = []
+  var cherries = []
+  var isOpen = false
+  var score = 0
+  var ingame = {
+    px: 0,
+    py: 0
+  }
+  // endregion
+ 
+  // region: start game
+  reset()
+  setInterval(update, NUMBER.INTERVAL)
+  // endregion
+ 
+  // region: game flow
+  function update() {
+    draw()
+    controlGame()
+  }
+ 
+  function draw() { // draw every elements in the game
+    drawBackground()
+    drawMap()
+    drawPath()
+    drawFood()
+    drawCherries()
+    drawPacman()
+    drawGhosts()
+    drawScore()
+  }
+ 
+  function controlGame() { 
+    controlObject(pacman)
+    controlPath()
+    controlGhosts()
+    controlScore()
+  }
+ 
+  function reset() { 
+    toDefault()
+    generateElements()
+  }
+ 
+  function toDefault() {
+    score = 0
+    map = []
+    food = []
+    ghosts = []
+    cherries = []
+    pacman = {
+      x: 1,
+      y: 1,
+      direction: 'right',
+      power: 0
+    }
+  }
+ 
+  function generateElements() {
+    generateMap()
+    generateFood()
+    generateCherry()
+    generateGhost()
+  }
+  // endregion
+ 
+  // region: generate elements
+  
+  function generateGhost() {
+      // randomize ghost's properties
+      let x = random(GHOST_AREA.w) + GHOST_AREA.x
+      let y = random(GHOST_AREA.h) + GHOST_AREA.y
+      let direction = randomProperty(DIRECTION)
+      let color = randomProperty(COLOR.GHOST)
+      let path = []
+      // add ghost to array
+      ghosts.push({
+        x,
+        y,
+        color,
+        direction,
+        path
+      })
+      generateTarget(ghosts[ghosts.length - 1])
+  }
+ 
+  function generateFood() {
+    for (let i = 0; i < SIZE.GRID; i++) {
+      for (let j = 0; j < SIZE.GRID; j++) {
+        let foo = {
+          x: i,
+          y: j
+        }
+        if (!isContained(map, foo)) {
+          food.push(foo)
+        }
+      }
+    }
+  }
+ 
+  function generateTarget(obj) {
+    obj.path = []
+    if (cherries.length <= 0) {
+      obj.target = -1
+      return
+    }
+    obj.target = random(NUMBER.GHOST) > NUMBER.GHOST / 4 ? -1 : random(cherries.length)
+  }
+ 
+  function generateCherry() {
+    while (cherries.length < NUMBER.CHERRY) {
+      let index = random(food.length)
+      let cher = food[index]
+      if (!isContained(cherries, cher)) {
+        cherries.push(cher)
+        food.splice(index, 1)
+      }
+    }
+  }
+ 
+  function generateMap() {
+    for (let i = 0; i < SIZE.GRID / 2; i++) {
+      generateOthers(i, 0)
+    }
+    for (let i = 1; i < SIZE.GRID / 2; i++) {
+      generateOthers(0, i)
+    }
+    for (let i = 2; i < 2 + 5; i++) {
+      generateOthers(2, i)
+    }
+    for (let i = 4; i < 4 + 5; i++) {
+      generateOthers(i, 2)
+    }
+    for (let i = 2; i < 2 + 3; i++) {
+      generateOthers(i, 8)
+    }
+    for (let i = 4; i < 9; i += 2) {
+      for (let j = 4; j < 4 + 2; j++) {
+        generateOthers(i, j)
+      }
+    }
+    generateOthers(4, 7)
+    generateOthers(7, 7)
+    generateOthers(6, 7)
+    generateOthers(6, 8)
+    pushIntoMap({
+      x: 6,
+      y: 9
+    })
+    pushIntoMap({
+      x: SIZE.GRID - 6 - 1,
+      y: 9
+    })
+    for (let i = 8; i < 8 + 3; i++) {
+      pushIntoMap({
+        x: i,
+        y: 11
+      })
+    }
+  }
+
+
+  // section : control score
+  function hitGhost() {
+    let index = isHitGhost()
+    if (index === -1) {
+      return
+    }
+    if (pacman.power < 0) {
+      reset()
+    } else {
+      ghosts.splice(index, 1)
+      score += 10
+  if(score % 10 == 0)
+generateGhost();
+    }
+  }
+ 
+  function hitFood() {
+    let index = isCrashed(food, ingame.px, ingame.py)
+    if (index === -1) {
+      return
+    }
+    score++
+if(score % 10 == 0)
+generateGhost();
+ 
+
+    food.splice(index, 1)
+  }
+ 
+  function hitCherry() {
+    let index = isCrashed(cherries, ingame.px, ingame.py)
+    if (index === -1) {
+      return
+    }
+    pacman.power = NUMBER.INTERVAL * NUMBER.POWER
+    cherries.splice(index, 1)
+    score += 5
+if(score % 10 == 0)
+generateGhost();
+  }
+ 
+  function checkOver() {
+    if (!food.length || !ghosts.length) {
+      reset()
+    }
+  }
+
+ 
+  // section : control game
+  function controlGhosts() {
+    ghosts.forEach(value => {
+      controlObject(value)
+    })
+  }
+ 
+  function controlScore() {
+    // pacman eats food
+    hitFood()
+    // pacman crashes ghost
+    hitGhost()
+    // pacman eats cherry
+    hitCherry()
+    // check game over
+    checkOver()
+  }
+ 
+  function controlPath() {
+    ghosts.forEach((ghost, index) => {
+      let gx = Math.round(ghost.x)
+      let gy = Math.round(ghost.y)
+      if (ghost.target === -1) {
+        ghost.path = findWay(index, {
+          x: gx,
+          y: gy,
+          prev: null
+        }, {
+          x: ingame.px,
+          y: ingame.py
+        })
+      } else {
+
+        if (ghost.path == null || ghost.target >= cherries.length || reachCherry(ghost)) {
+          ghost.target = random(cherries.length)
+        }
+        let cherry = cherries[ghost.target]
+        ghost.path = findWay(index, {
+          x: gx,
+          y: gy,
+          prev: null
+        }, {
+          x: cherry.x,
+          y: cherry.y
+        })
+      }
+    })
+  }
+ 
+  function controlObject(obj) {
+    let index = 0
+    let possibleDirection = whereCanGo(obj)
+ 
+    // if the object is a ghost 
+    if (obj.hasOwnProperty('path')) {
+      // generate the target after an amount of time
+      if ((pacman.power % (NUMBER.INTERVAL * NUMBER.POWER * 2)) === 0) {
+        generateTarget(obj)
+      }
+ 
+      // control the direction
+      // when pacman activates power, go backwards reverse
+      if (pacman.power >= NUMBER.INTERVAL * (NUMBER.POWER - 1)) {
+        obj.direction = opositeOf(obj.direction)
+      } else {
+        // if the object still go ahead, remove the oposite direction
+        if (isPossible(obj.direction)) {
+          if ((index = possibleDirection.indexOf(opositeOf(obj.direction))) !== -1) {
+            possibleDirection.splice(index, 1)
+          }
+        }
+        // if the ghost is at the center of a block, random a new direction
+        // otherwise just follow the current path
+        if (Number.isInteger(obj.x) && Number.isInteger(obj.y)) {
+          if (obj.path.length <= 0 || pacman.power > 0) {
+            obj.direction = possibleDirection[random(possibleDirection.length)]
+          } else {
+            followPath(obj)
+          }
+        }
+      }
+    } else { 
+      obj.power -= NUMBER.INTERVAL
+      isOpen = !isOpen
+    }
+ 
+    // move based on its current direction
+    switch (obj.direction) {
+      case DIRECTION.RIGHT:
+        if (isPossible(DIRECTION.RIGHT)) {
+          obj.x += 1 / 4
+          obj.y = Math.round(obj.y)
+        }
+        break
+      case DIRECTION.LEFT:
+        if (isPossible(DIRECTION.LEFT)) {
+          obj.x -= 1 / 4
+          obj.y = Math.round(obj.y)
+        }
+        break
+      case DIRECTION.UP:
+        if (isPossible(DIRECTION.UP)) {
+          obj.y -= 1 / 4
+          obj.x = Math.round(obj.x)
+        }
+        break
+      case DIRECTION.DOWN:
+        if (isPossible(DIRECTION.DOWN)) {
+          obj.y += 1 / 4
+          obj.x = Math.round(obj.x)
+        }
+        break
+    }
+ 
+    roundCoordinates()
+ 
+    function isPossible(x) {
+      return possibleDirection.indexOf(x) !== -1
+    }
+  }
+ 
+ 
+  // section :  Dijkstra's Algorithm
+  // find the shortest way to the target
+  function findWay(ind, departure, destination) {
+    // if arrival and departure have a same coordinates, return a blank array
+    if (departure.x === destination.x && departure.y === destination.y) {
+      return []
+    }
+    // push departure to the queue as the start point
+    let queue = [departure]
+    let index = 0
+    let result = null
+ 
+    // keep finding a way until get a result
+    while (!result) {
+      let adj = getAdjacences(ind, queue, queue[index])
+      adj.forEach((value) => {
+        // deep copy the adjacence and push to queue
+        value.prev = JSON.parse(JSON.stringify(queue[index]))
+        queue.push(value)
+ 
+        if (value.x === destination.x && value.y === destination.y) {
+          result = value
+        }
+      })
+      index++
+    }
+ 
+    // inverse nextMoves
+    let nextMoves = []
+    let curr = result
+    do {
+      nextMoves.push({
+        x: curr.x,
+        y: curr.y
+      })
+      curr = curr.prev
+    } while (curr != null)
+ 
+    return nextMoves.reverse().splice(1)
+  }
+
+
   // get all possible next moves
   function getAdjacences(ind, queue, point) {
     if (typeof point !== 'undefined') {
